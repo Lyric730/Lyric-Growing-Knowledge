@@ -1,42 +1,44 @@
 # Lyric Growing Knowledge
 
-一个用于 **AI 增长工作流** 的协作仓库：
-- 你（Lyric）负责方向与审核
-- 刀哥负责产出草案、结构化沉淀、提交 PR
+一个用于 **个人知识沉淀 + 项目管理** 的协作仓库：
+- Lyric：定方向、定优先级、做最终审核
+- 刀哥：结构化整理、文档维护、分支提交与 PR
 
 ## 仓库目标
-把增长工作做成可复用系统，而不只是一次次临时动作。
+把日常输入、项目过程与方法论，沉淀成可复用的个人资产。
 
-## 目录结构
-- `content/`：选题池、内容草稿、发布计划
-- `assets/`：素材索引（不建议放大文件本体）
-- `reports/`：周报、复盘、实验记录
-- `prompts/`：高频提示词、工作流提示模板
+## 目录结构（v2）
+- `knowledge/`：知识沉淀主目录
+  - `inbox/`：临时笔记与待整理输入
+  - `permanent/`：长期有效的结构化知识卡片
+  - `maps/`：主题索引（MOC）
+- `projects/`：项目管理主目录
+  - `active/`：进行中项目
+  - `archive/`：已归档项目
+- `journal/`：周期复盘
+  - `daily/`：日记录
+  - `weekly/`：周复盘
+- `references/`：资料索引（链接、论文、工具、案例）
+- `ops/templates/`：可复用模板（任务、复盘、PR 描述等）
 - `POLICY/`：协作规则、审核标准、风险边界
+- `.github/pull_request_template.md`：PR 模板
 
-## 协作流程（核心）
-1. 提需求（目标、受众、约束、截止时间）
-2. 刀哥开分支：`feat/...` `fix/...` `docs/...`
-3. 刀哥提交改动并发起 PR
-4. Lyric 审核（内容质量 / 风险 / 可执行性）
-5. 通过后 merge 到 `main`
+> 说明：旧目录先保留，不做破坏性删除；后续按需迁移。
+
+## 协作流程（简）
+1. Lyric 提需求
+2. 刀哥在 Discord 给出答复
+3. 若是有实质产出的任务：确认是否建分支
+4. 建分支执行并提交 PR
+5. Lyric 审核并决定合并
 
 ## 分支命名
-- `feat/<topic>`：新增能力或内容模块
-- `docs/<topic>`：文档规范/模板更新
-- `fix/<topic>`：修正错误
-
-例如：
-- `feat/x-matrix-weekly-plan`
-- `docs/pr-review-checklist`
-
-## 建议保护规则
-- `main` 禁止直接 push
-- 必须通过 PR 合并
-- 至少 1 个 reviewer（你自己）
+- `feat/<topic>`
+- `docs/<topic>`
+- `fix/<topic>`
 
 ## 快速开始
 先看：
-- `CONTRIBUTING.md`
-- `.github/pull_request_template.md`
+- `POLICY/collaboration-framework.md`
 - `POLICY/review-checklist.md`
+- `CONTRIBUTING.md`
