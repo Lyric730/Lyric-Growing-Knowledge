@@ -1,0 +1,22 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Temp
+*.log
+*.tmp
+
+# Secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Build/cache
+node_modules/
+.cache/
