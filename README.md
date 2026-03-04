@@ -1,1 +1,1 @@
-# Lyric-
+# Lyricの智慧树
