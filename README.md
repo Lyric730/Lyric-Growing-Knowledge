@@ -40,5 +40,5 @@
 ## 快速开始
 先看：
 - `POLICY/collaboration-framework.md`
-- `POLICY/review-checklist.md`
+- `POLICY/agents/README.md`
 - `CONTRIBUTING.md`
