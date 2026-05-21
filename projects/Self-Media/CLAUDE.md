@@ -6,15 +6,20 @@
 
 ---
 
-## ⏰ 时间确认（每次对话第一步）
+## ⏰ 时间 + 分支确认（每次对话第一步）
 
-**进入对话第一时间跑 `date` 拿真实时间**，不要相信 system context 里的 `currentDate`（被观察到偏差 1 天以上）。
+**进入对话第一时间跑两条命令**：
 
 ```bash
-date '+%Y-%m-%d %H:%M:%S %A'
+date '+%Y-%m-%d %H:%M:%S %A'   # 真实时间（不信 system currentDate，被观察到偏差 1+ 天）
+git -C "/home/lyric/Making money/Lyric-Self-Improve" branch --show-current
 ```
 
-涉及日报产出、定时任务、文件归档时，所有日期决定都基于 `date` 命令输出。**已踩坑**：5/20 我把 5/21 的日报当成 5/20 处理过。
+**branch 必须是 `projects/self-media`**——做 Self-Media 工作前如果在别的分支 (huoshanbei / main)，先 `git checkout projects/self-media`。
+
+**已踩坑**：
+- 5/20 我把 5/21 的日报当成 5/20 处理（信 currentDate 没跑 date）
+- 5/12 - 5/21 整整 9 天工作在 huoshanbei 分支 untracked，硬盘坏可能全丢（5/21 才发现 commit + push 进 projects/self-media）
 
 ---
 
