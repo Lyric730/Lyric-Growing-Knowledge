@@ -20,3 +20,11 @@ Thumbs.db
 # Build/cache
 node_modules/
 .cache/
+
+# Self-Media 产物（日报输出 / 中间数据，不追踪）
+projects/Self-Media/daily/
+*.bak
+
+# Python 字节码缓存
+__pycache__/
+*.pyc

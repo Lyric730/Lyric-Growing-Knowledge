@@ -1,0 +1,204 @@
+{
+  "date": "2026-05-12",
+  "issue_number": "VOL. 013",
+  "issue_no_inner": "NO. 013",
+  "cover_kicker_count": "8 件",
+  "events": [
+    {
+      "id": "event-01",
+      "rank": 1,
+      "category": "Market",
+      "title": "OpenAI 解雇的那个人，用 12 个月把 2.25 亿做成 55 亿，翻了 24 倍",
+      "title_tail": "但评论区一眼算清账",
+      "source": {
+        "url": "x.com/kimmonismus/status/2054187708231160180",
+        "handle": "@kimmonismus",
+        "platform": "x"
+      },
+      "story_paragraphs": [
+        "Leopold Aschenbrenner 2024 年被 OpenAI 解雇后，自己开了一只投资基金。12 个月，把基金从 2.25 亿做到 55 亿——但他没买 AI 公司。",
+        "他没买 Nvidia、微软、谷歌——买的是「AI 实际跑在上面的东西」：能源、带宽、存储、算力。他自己的逻辑：AI 时代真正的瓶颈是电网，不是芯片。",
+        "但评论区 855 个赞里几条高赞反驳直接拆穿故事——5.5B 里很多是后续融资，不是 225M 本金的真实回报；能源股 3 年来本来就涨疯了。"
+      ],
+      "take": "讲得像 AI 洞察，其实是赌对了能源紧缺周期。运气 + 故事 = 24 倍，普通人复制不来。",
+      "quotes": [
+        {
+          "text": "everyone wants model exposure until the power bill shows up",
+          "zh": "大家都想要 AI 仓位——直到电费账单送到",
+          "attr": "— @tizimmer · 评论区原文"
+        }
+      ]
+    },
+    {
+      "id": "event-02",
+      "rank": 2,
+      "category": "Workforce",
+      "title": "保险专员让我提交「6月2号的病历」——但今天才 5月12号",
+      "title_tail": "你的岗位是 pattern matching 还是 judgment？",
+      "source": {
+        "url": "x.com/frxiaobei/status/2054197879334723983",
+        "handle": "@frxiaobei",
+        "platform": "x"
+      },
+      "story_paragraphs": [
+        "今天接到保险公司专员的电话——她让我提交「6月2号的病历」，今天才 5月12号。这通电话和系统自动催收的提示没有任何区别。",
+        "起因：5月8号去医院就诊，医生为方便复诊把 6月2号的挂号顺手开好。报销时我把那张挂号费发票一起扫了进去，系统多次提醒补交「6月2号的处方和病历」。",
+        "专员上来反复强调「您需要提交6月2号的病历」。我说大姐今天才5月12号。她愣了一下：「哦对哦……那我去帮你反馈一下。」这通电话跟系统提示有任何区别吗？"
+      ],
+      "take": "很多人把自己活成了机器，又担心被机器取代——这是什么心理。关键不是看技能高低，是看自己工作里 pattern matching 占多少、judgment 占多少。",
+      "quotes": [
+        {
+          "text": "保险专员做的是 pattern matching：扫发票、核对日期、发现异常。这类结构化判断就是 AI 擅长的。",
+          "attr": "— @stometaverse · 评论区原文"
+        }
+      ]
+    },
+    {
+      "id": "event-03",
+      "rank": 3,
+      "category": "AI Infra",
+      "title": "亚马逊把「AI 使用率」写进 KPI——员工立刻学会了刷榜",
+      "title_tail": "只要 KPI 挂钩，永远是囚徒困境",
+      "source": {
+        "url": "the-decoder.com/tokenmaxxing-spreads-at-amazon",
+        "platform": "the-decoder",
+        "secondhand": "FT"
+      },
+      "story_paragraphs": [
+        "亚马逊给开发者团队定了目标：每周 AI 使用率 ≥ 80%，token 消耗量挂内部排行榜。员工立刻发明了「tokenmaxxing」——通过自动化手段执行非必要任务来冲榜。",
+        "公司一边推内部工具 MeshClaw 让员工创建 AI agent 做代码部署、邮件分类，一边把 Bedrock 新功能「自动 prompt 优化」上线（号称性能提升 22%）。但 KPI 一挂钩，所有工具立刻变成刷榜工具。",
+        "同款现象在 Meta 也出现了。Financial Times 调查报告里，一位员工说「There is just so much pressure to use these tools.」"
+      ],
+      "take": "AI 评测榜单天然会被刷——只要你把它当 KPI 挂员工身上，剩下的就是囚徒困境。这事 PM 视角看：评测设计 > 评测使用。",
+      "quotes": [
+        {
+          "text": "When they track usage it creates perverse incentives.",
+          "zh": "当他们追踪使用率，就在制造扭曲的激励。",
+          "attr": "— 一位亚马逊经理 · via FT"
+        }
+      ]
+    },
+    {
+      "id": "event-04",
+      "rank": 4,
+      "category": "Security",
+      "title": "20 万人下载了「OpenAI 隐私过滤器」——但它是内含木马的山寨包",
+      "title_tail": "你以为的「官方」可能只是文件结构长得像",
+      "source": {
+        "url": "ithome.com/0/949/518.htm",
+        "platform": "ithome",
+        "secondhand": "HiddenLayer"
+      },
+      "story_paragraphs": [
+        "HuggingFace 平台出现伪装成 OpenAI 官方「Privacy Filter」隐私脱敏模型的山寨项目 Open-OSS/privacy-filter。仓库文件目录与正版高度一致——但实际暗藏信息窃取木马。",
+        "下架前已被下载超过 20 万次。安全公司 HiddenLayer 披露：用户若运行该文件，系统会被入侵。",
+        "HiddenLayer 的建议是彻底重建开发环境，而非手动清理木马。这事的真正信号：AI 工具时代「看起来像官方」的成本已经低到 20 万人无法用肉眼分辨。"
+      ],
+      "take": "下载前「人眼审查」已经失效——20 万开发者没分清哪个是 OpenAI 哪个不是。AI 工具生态的信任结构，靠「文件目录长得一样」撑不住。",
+      "quotes": [
+        {
+          "text": "我们建议彻底重建你的开发环境，而不是尝试手动清除恶意软件。",
+          "attr": "— HiddenLayer 安全公告 · via IT 之家"
+        }
+      ]
+    },
+    {
+      "id": "event-05",
+      "rank": 5,
+      "category": "Product",
+      "title": "Gemini Omni 把你的脸放进任何视频——但它不只是「AI 视频」",
+      "title_tail": "是 Google 把 multimodal 变成一块画布的尝试",
+      "source": {
+        "url": "x.com/testingcatalog/status/2054196983523393857",
+        "handle": "@testingcatalog",
+        "platform": "x"
+      },
+      "story_paragraphs": [
+        "Google 在 web 版 Gemini 里加了「Omni」banner——Gemini Omni 不是一个新模型，是一个能整合文本/图像/视频的 AI agent。",
+        "关键功能叫 Likeness——让你把自己的脸放进任何场景。此前 Sora 上用过，现在 Google 把它深度集成进 mobile app。",
+        "真正的产品信号不是「又一个 AI 视频工具」——是 Google 想把 multimodal context 变成一块可编辑的画布。但 10 秒钟普通人能干啥？家装/围栏行业说能做「可视化预览」。"
+      ],
+      "take": "Likeness 不是噱头，是 AI 视频从「看 demo」走向「装进自己生活」的临界点。但普通人能干啥还是没人想清楚——除了想结婚的、装修的、卖货的。",
+      "quotes": [
+        {
+          "text": "Gemini Omni sounds less like another chatbot and more like Google trying to turn multimodal context into an actual canvas.",
+          "zh": "Gemini Omni 听起来不像又一个聊天机器人，更像 Google 把 multimodal context 变成一块真正的画布。",
+          "attr": "— @WpFactory1 · 评论区原文"
+        }
+      ]
+    },
+    {
+      "id": "event-06",
+      "rank": 6,
+      "category": "AI Models",
+      "title": "Mira Murati 离开 OpenAI 后，第一款产品挑了语音赛道",
+      "title_tail": "不是大模型，是产品赛道选择的策略思考",
+      "source": {
+        "url": "the-decoder.com/thinking-machines-lab-first-model",
+        "platform": "the-decoder"
+      },
+      "story_paragraphs": [
+        "Mira Murati 离开 OpenAI 后创立的 Thinking Machines Lab 发布了第一款模型——不是又一个 LLM，是语音模型。",
+        "关键设计：以 200 毫秒数据块并行处理音频/视频/文本，专注实时交互流畅性。挑战的是 OpenAI GPT Realtime 2 和 Google Gemini Live。",
+        "为什么挑语音？语音的「非问答式交互」是 chatbot 时代最缺的人感。这不是技术选型，是产品赛道选择——选对赛道比选对参数更值钱。"
+      ],
+      "take": "选什么赛道发第一款产品，本身就是 PM 视角。Mira 选语音，是在赌「交互流畅性」比「更大参数」更值钱——这事 6 个月后才有答案。",
+      "quotes": [
+        {
+          "text": "The model is designed in 200ms chunks, processing audio, video, and text in parallel — surpassing OpenAI's GPT Realtime 2 and Google's Gemini Live.",
+          "zh": "该模型以 200ms 数据块设计，并行处理音视频和文本——在交互质量上超过 GPT Realtime 2 和 Gemini Live。",
+          "attr": "— The Decoder · 发布报道"
+        }
+      ]
+    },
+    {
+      "id": "event-07",
+      "rank": 7,
+      "category": "Industry",
+      "title": "奥尔特曼本周出庭马斯克诉讼——苏茨克韦尔指控他撒谎",
+      "title_tail": "庭审定 OpenAI 万亿 IPO 的未来",
+      "source": {
+        "url": "ithome.com/openai-musk-trial-2026",
+        "platform": "ithome"
+      },
+      "story_paragraphs": [
+        "OpenAI CEO 奥尔特曼本周出庭马斯克诉讼。底层争议：OpenAI 从「非营利」使命转型为「营利性」是否合法？马斯克指控公司背弃初衷，要求罢免奥尔特曼与总裁布罗克曼。",
+        "关键证人是前首席科学家苏茨克韦尔——他出庭指控奥尔特曼「存在一贯撒谎的行事模式」。这是 2023 年 OpenAI 内部政变（苏茨克韦尔参与短暂罢免奥尔特曼）的延续。",
+        "庭审结果或决定公司未来——OpenAI 已融资数千亿美元、正为万亿估值 IPO 铺路。如果转营利被推翻，整个 AI 商业格局会重排。"
+      ],
+      "take": "AI 公司的治理结构正在被法律重写——这不只是商业纠纷，是非营利 vs 营利之争。每个 ChatGPT 用户都该看一眼：你用的工具，治理结构稳吗？",
+      "quotes": [
+        {
+          "text": "Sutskever testified that Altman has a \"consistent pattern of dishonesty\" in his decision-making.",
+          "zh": "苏茨克韦尔证词：奥尔特曼在决策中「存在一贯撒谎的行事模式」。",
+          "attr": "— 法庭文件摘录 · via IT 之家"
+        }
+      ]
+    },
+    {
+      "id": "event-08",
+      "rank": 8,
+      "category": "Security",
+      "title": "黑客已经开始用 AI 找零日漏洞——你的开发环境是下一个目标",
+      "title_tail": "安全攻防进入「加速时代」",
+      "source": {
+        "url": "ithome.com/google-ai-zeroday-2026",
+        "platform": "ithome",
+        "secondhand": "Google Threat Intelligence"
+      },
+      "story_paragraphs": [
+        "谷歌威胁情报团队刚发布报告：黑客组织已经在用 AI 工具挖掘真实零日漏洞，相关攻击已被阻止——但发现速度证明攻防正在加速。",
+        "报告披露了一段 AI 生成的 Python 脚本，用来绕过某热门开源网络管理工具的双因素认证机制。脚本内含详细注释和虚构的 CVSS 风险评分——AI 让黑客「看起来很专业」的副作用。",
+        "这意味着安全攻防进入「加速时代」——AI 让漏洞挖掘的速度从「白帽人月级」变成「黑帽机器小时级」。普通开发者的安全意识必须跟上。"
+      ],
+      "take": "白帽如果不也用 AI 加速，攻防天平会被打破。普通开发者：别再用默认密码，别再忽略 2FA，别再以为「我又不是名人」。",
+      "quotes": [
+        {
+          "text": "With AI-augmented context reasoning capability improving, its ability to discover vulnerabilities is increasing daily.",
+          "zh": "随着 AI 上下文推理能力提升，其发现漏洞的能力日益增强。",
+          "attr": "— Google Threat Intelligence · 2026 报告"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>小刀的 AI 实验室 · 2026-05-12 · dry run v1.4</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700;800&family=Noto+Serif+SC:wght@300;400;500;700;900&family=PT+Mono&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css">
+
+<style>
+/* ========== TOKENS ========== */
+:root {
+  --ink:         oklch(0.16 0.024 65);
+  --ink-soft:    oklch(0.32 0.022 65);
+  --ink-mute:    oklch(0.48 0.018 65);
+
+  --cream:       oklch(0.98 0.005 80);   /* v3.9: chroma 0.014→0.005 再减黄，亮度 0.97→0.98 */
+  --cream-soft:  oklch(0.90 0.008 78);
+  --cream-mute:  oklch(0.76 0.010 75);
+
+  --accent:      oklch(0.40 0.25 250);   /* v2.2: 朱砂红→Klein 蓝（高饱和电青），冷调冲击 */
+  --accent-soft: oklch(0.40 0.25 2500);
+
+  --page-bg:     oklch(0.10 0.014 60);
+
+  --font-display-zh: "LXGW WenKai", "Noto Serif SC", serif;
+  --font-body-zh:    "Noto Serif SC", "LXGW WenKai", serif;
+  --font-display-en: "Bricolage Grotesque", system-ui, sans-serif;
+  --font-mono:       "PT Mono", ui-monospace, monospace;
+  --font-serif-en:   "PT Serif", Georgia, serif;
+
+  --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px;
+  --s-5: 24px; --s-6: 32px; --s-7: 48px; --s-8: 64px;
+  --s-9: 96px; --s-10: 128px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-kerning: normal; }
+
+body {
+  background: var(--page-bg);
+  font-family: var(--font-body-zh);
+  padding: var(--s-7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-7);
+  align-items: center;
+  min-height: 100vh;
+}
+
+.dev-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: oklch(0.94 0.022 78 / 0.4);
+  align-self: stretch;
+  text-align: center;
+}
+
+.slide {
+  width: 1080px;
+  height: 1440px;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.slide-label {
+  position: absolute;
+  top: -22px;
+  left: 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cream-mute);
+}
+
+/* ========== GRAIN ========== */
+.grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+/* v3.9: grain 点点全部去掉，让背景干净 */
+.grain-dark { display: none; }
+.grain-light { display: none; }
+
+/* ========== COVER ========== */
+.cover {
+  /* v2.3: cover 改纯黑底 + override accent 为亮蓝（hue 240，避开紫调，减少与 grain 棕调的视错觉混色）*/
+  --accent: oklch(0.72 0.16 240);
+  --accent-soft: oklch(0.82 0.12 240);
+  background: oklch(0 0 0);
+  color: var(--cream);
+  padding: var(--s-7) var(--s-8) var(--s-7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-8);
+}
+
+.masthead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: var(--s-4);
+  border-bottom: 1px solid oklch(0.94 0.022 78 / 0.35);
+  font-variant-numeric: tabular-nums;
+}
+
+.masthead-brand { display: flex; flex-direction: column; gap: 2px; }
+
+.brand-name {
+  font-family: var(--font-display-zh);
+  font-weight: 700;
+  font-size: 30px;
+  letter-spacing: 0.02em;
+  color: var(--cream);
+  line-height: 1;
+}
+
+.brand-tagline {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: oklch(0.94 0.022 78 / 0.55);
+  margin-top: var(--s-2);
+}
+
+.masthead-meta {
+  display: flex;
+  gap: var(--s-5);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  letter-spacing: 0.03em;
+  color: oklch(0.94 0.022 78 / 0.72);
+}
+
+/* ===== KICKER 主标题 ===== */
+.cover-kicker-wrap { padding-top: var(--s-5); padding-bottom: var(--s-3); }
+
+.cover-kicker-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--accent-soft);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-bottom: var(--s-4);
+}
+
+.cover-kicker {
+  font-family: var(--font-display-zh);
+  font-size: 108px;
+  line-height: 1.08;
+  font-weight: 700;
+  color: var(--cream);
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+}
+
+.cover-kicker .accent { color: var(--accent-soft); }
+
+/* ===== COVER LIST v3 — 1-8 等权（不再金字塔）===== */
+.cover-list {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding-top: var(--s-4);
+  border-top: 1px dashed oklch(0.94 0.022 78 / 0.35);
+}
+
+.cover-list-head {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent-soft);
+  padding-bottom: var(--s-3);
+}
+
+.cover-list-item {
+  display: grid;
+  grid-template-columns: 56px 1fr 150px;
+  column-gap: var(--s-5);
+  align-items: center;
+  padding: var(--s-3) 0;
+  border-top: 1px dashed oklch(0.94 0.022 78 / 0.22);
+  flex: 1;
+}
+
+.cover-list-num {
+  font-family: var(--font-display-en);
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.cover-list-title {
+  font-family: var(--font-body-zh);
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--cream);
+  letter-spacing: -0.005em;
+}
+
+.cover-list-title .ln-tail {
+  color: var(--cream);              /* v3.1: 0.6 alpha → 满 cream，副标不再灰掉 */
+  font-weight: 400;
+}
+
+.cover-list-meta {
+  font-family: var(--font-mono);
+  font-size: 12px;                  /* v3.1: 11→12 略放大 */
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cream);              /* v3.1: 0.55 alpha → 满 cream */
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ========== EVENT CARD (LIGHT) ========== */
+.card {
+  background: var(--cream);
+  color: var(--ink);
+  padding: var(--s-5) var(--s-7) var(--s-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);                   /* v3.7b: s-4→s-2，section header 接管视觉分组 */
+}
+
+.card-rail {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: var(--s-3);
+  border-bottom: 1px solid var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.card-rail-label {
+  font-family: var(--font-mono);
+  font-size: 17px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.card-num {
+  font-family: var(--font-display-en);
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.card-source {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-mute);
+  letter-spacing: 0.05em;
+  display: flex;
+  gap: var(--s-4);
+  flex-wrap: wrap;
+}
+
+.card-source .sep { opacity: 0.4; }
+
+.card-title {
+  font-family: var(--font-display-zh);
+  font-size: 44px;
+  line-height: 1.38;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.005em;
+}
+
+.card-title .ln-tail {
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+/* ===== CARD META v3.2 — 标题下作者/来源/分类条 (字号+颜色加深 + 热度信号) ===== */
+.card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3) var(--s-4);
+  align-items: center;
+  font-family: var(--font-body-zh);            /* v3.2: mono→中文 sans，更易读 */
+  font-size: 17px;                              /* v3.2: 14→17 */
+  font-weight: 500;                             /* v3.2: 加粗 */
+  color: var(--ink);                            /* v3.2: ink-soft 0.32 → ink 0.16 全墨 */
+  margin-top: var(--s-3);
+  padding-bottom: var(--s-3);
+  border-bottom: 1px solid var(--ink);          /* v3.2: dashed→solid 更接近正经报道 byline */
+  letter-spacing: 0;                            /* v3.2: 取消 letter-spacing */
+  text-transform: none;                         /* v3.2: 不再 uppercase */
+}
+.card-meta .author {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--ink);
+}
+.card-meta .dot { color: var(--ink-mute); padding: 0 2px; }
+.card-meta .heat {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.card-meta .heat .icon { color: var(--accent); padding-right: 3px; }
+.card-meta .cat {
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+/* ===== SECTION HEADER v3.8 — 字号加大让 label 更明显 ===== */
+.card-section {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-2);
+  padding-bottom: var(--s-1);
+  margin-top: var(--s-2);
+}
+.card-section .arrow {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 20px;                /* v3.8: 14→20 */
+  font-weight: 700;
+  line-height: 1;
+}
+.card-section .cn {
+  font-family: var(--font-display-zh);
+  font-size: 22px;                /* v3.8: 15→22 */
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+}
+.card-section .en {
+  font-family: var(--font-mono);
+  font-size: 13px;                /* v3.8: 10→13 */
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-soft);          /* v3.8: ink-mute→ink-soft 更可见 */
+}
+.card-section .rule {
+  flex: 1;
+  border-top: 1px solid var(--ink);
+  margin-top: 4px;
+  margin-left: var(--s-2);
+}
+
+/* ===== BODY v3.2 — 正经报道排版：首行缩进 2em + 字号/行高微调 ===== */
+.card-story {
+  font-family: var(--font-body-zh);
+  font-size: 26px;                          /* v3.3: 用户要回 26，配套砍字数到 ~260 */
+  line-height: 1.55;                        /* v3.3: 1.7→1.55, 节省竖向空间 */
+  font-weight: 400;
+  color: var(--ink);
+  max-width: none;
+}
+.card-story p {
+  text-indent: 2em;                          /* 中文报道惯例首行缩进 2 字 */
+  margin: 0;
+}
+.card-story p + p {
+  margin-top: var(--s-3);
+}
+.card-story em {
+  font-style: normal;
+  background: oklch(0.78 0.14 145 / 0.22);   /* v3.2: 略提亮 0.65→0.78，背景更可见 */
+  padding: 0 3px;
+  color: oklch(0.38 0.18 145);                /* v3.2: 文字略加深 0.42→0.38 提对比 */
+  font-weight: 500;
+  border-radius: 2px;                         /* v3.2: 微圆角，减少「打断阅读」感 */
+}
+
+
+/* ===== TAKE & QUOTE v3.7 — 删 dashed border 由 section label 替代 ===== */
+.card-take {
+  font-family: var(--font-display-zh);
+  font-size: 32px;
+  line-height: 1.42;
+  font-weight: 700;
+  color: var(--accent);
+  padding: 0;
+  margin: 0;
+}
+
+/* ===== ACTION v3.7 — 行动框（用 section header 后 box 简化）===== */
+.card-action {
+  padding: var(--s-3) var(--s-4);
+  background: oklch(0.78 0.14 145 / 0.10);
+  border-left: 3px solid oklch(0.42 0.16 145);
+  font-family: var(--font-body-zh);
+  font-size: 25px;
+  line-height: 1.5;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+/* ===== QUOTES v3 — 2-3 条主评+反驳 ===== */
+.card-quotes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+.card-quote {
+  padding-left: var(--s-7);
+  position: relative;
+  font-family: var(--font-serif-en);
+  font-style: italic;
+  font-size: 18px;                  /* v3.2b: 20→18, 让 3 条装下 */
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+/* 多条之间细分隔线（除第一条外都加 top border） */
+.card-quote + .card-quote {
+  padding-top: var(--s-3);
+  border-top: 1px dotted var(--ink-mute);
+}
+
+.card-quote::before {
+  content: "❝";
+  position: absolute;
+  left: 0;
+  top: -10px;
+  font-family: var(--font-display-en);
+  font-size: 48px;
+  line-height: 1;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* 多条时第 2、3 条引号符号略缩 + 上偏移配合 padding-top */
+.card-quote + .card-quote::before {
+  font-size: 36px;
+  top: calc(var(--s-3) - 8px);
+}
+
+.card-quote .zh {
+  display: block;
+  font-family: var(--font-body-zh);
+  font-style: normal;
+  font-size: 15px;                  /* v3.2b: 17→15 */
+  margin-top: var(--s-2);
+  color: var(--ink-soft);
+}
+
+.card-quote .attr {
+  display: block;
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-size: 12px;
+  color: var(--ink);
+  margin-top: var(--s-3);
+  letter-spacing: 0.04em;
+}
+
+.card-footer {
+  position: absolute;
+  bottom: var(--s-5);                /* v3.2d: s-4 16px → s-5 24px, give footer breathing room */
+  left: var(--s-7);
+  right: var(--s-7);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--ink);
+  font-family: var(--font-mono);
+  font-size: 13px;                  /* v3.2c: 10→13 */
+  color: var(--ink-soft);            /* v3.2c: ink-mute→ink-soft 加深 */
+  letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
+  background: var(--cream);
+  z-index: 5;
+}
+/* 给 .card 留出 footer 空间，避免上方内容压住 footer */
+.card { padding-bottom: calc(var(--s-7) + 36px); }
+
+.card-footer-url { text-transform: lowercase; }
+</style>
+</head>
+<body>
+
+<div class="dev-label">daily · {{ daily.total_events() }} events · 1080 × 1440 · {{ daily.date }}</div>
+
+<style>
+/* Focus mode: #cover / #event-NN URL hash → 单 slide 独占 viewport */
+html:has(.slide:target) { background: oklch(0.94 0.022 78); }
+html:has(#cover:target) { background: oklch(0.16 0.024 65); }
+body:has(.slide:target) { padding: 0; gap: 0; background: transparent; }
+body:has(.slide:target) .dev-label,
+body:has(.slide:target) .slide-label { display: none; }
+body:has(.slide:target) .slide:not(:target) { display: none; }
+.slide:target { box-shadow: none; }
+</style>
+
+{# ========== SLIDE 1: COVER ========== #}
+<div id="cover" class="slide cover">
+  <div class="slide-label">SLIDE 01 · COVER (dark / ink)</div>
+  <div class="grain grain-dark"></div>
+
+  <div class="masthead">
+    <div class="masthead-brand">
+      <div class="brand-name">{{ daily.brand_name }}</div>
+      <div class="brand-tagline">{{ daily.brand_tagline }}</div>
+    </div>
+    <div class="masthead-meta">
+      <span>{{ daily.issue_number }}</span>
+      <span>{{ daily.issue_no_inner }}</span>
+      <span>{{ daily.issue_date_label }}</span>
+    </div>
+  </div>
+
+  <div class="cover-kicker-wrap">
+    <div class="cover-kicker-eyebrow">{{ daily.cover_eyebrow }}</div>
+    <h1 class="cover-kicker">{{ daily.cover_kicker_main }}<br><span class="accent">{{ daily.cover_kicker_count }}</span>{{ daily.cover_kicker_tail }}</h1>
+  </div>
+
+  <div class="cover-list">
+    <div class="cover-list-head">— 今日 {{ daily.events|length }} 件 / 一篇一题 / 同等重要 —</div>
+    {% for e in daily.events %}
+    <div class="cover-list-item">
+      <span class="cover-list-num">{{ '%02d'|format(e.rank) }}</span>
+      <span class="cover-list-title">{{ e.title }}{% if e.title_tail %}<span class="ln-tail">——{{ e.title_tail }}</span>{% endif %}</span>
+      <span class="cover-list-meta">{% if e.source.handle %}{{ e.source.platform|upper }} · {{ e.source.handle }}{% else %}{{ e.source.platform|upper }}{% endif %} · {{ e.category|lower }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{# ========== EVENT CARDS v3 (6 elements: rail / title / story / take / quotes / footer) ========== #}
+{% for e in daily.events %}
+<div id="{{ e.id }}" class="slide card">
+  <div class="slide-label">SLIDE {{ '%02d'|format(loop.index + 1) }} · EVENT {{ '%02d'|format(e.rank) }} ({{ e.category|lower }})</div>
+  <div class="grain grain-light"></div>
+
+  <div class="card-rail">
+    <span class="card-rail-label">Event {{ '%02d'|format(e.rank) }} / {{ daily.total_events() }} · {{ e.category }}</span>
+    <span class="card-num">{{ '%02d'|format(e.rank) }}</span>
+  </div>
+
+  <h2 class="card-title">{{ e.title }}{% if e.title_tail %}<span class="ln-tail">——{{ e.title_tail }}</span>{% endif %}</h2>
+
+  <div class="card-meta">
+    {% if e.source.handle %}<span class="author">{{ e.source.handle }}</span>{% else %}<span class="author">{{ e.source.platform|capitalize }}</span>{% endif %}
+    {% if e.source.secondhand %}<span class="dot">·</span><span>via {{ e.source.secondhand }}</span>{% endif %}
+    <span class="dot">·</span><span class="cat">{{ e.category }}</span>
+    {% if e.source.likes is not none %}<span class="dot">·</span><span class="heat"><span class="icon">♥</span>{{ e.source.likes }}</span>{% endif %}
+    {% if e.source.replies is not none %}<span class="dot">·</span><span class="heat"><span class="icon">💬</span>{{ e.source.replies }}</span>{% endif %}
+    {% if e.source.retweets is not none %}<span class="dot">·</span><span class="heat"><span class="icon">↻</span>{{ e.source.retweets }}</span>{% endif %}
+  </div>
+
+  <div class="card-section"><span class="arrow">→</span><span class="cn">报道</span><span class="en">STORY</span><span class="rule"></span></div>
+  <div class="card-story">
+    {% for para in e.story_paragraphs %}<p>{{ para|safe }}</p>{% endfor %}
+  </div>
+
+  <div class="card-section"><span class="arrow">→</span><span class="cn">评论区</span><span class="en">REACTIONS</span><span class="rule"></span></div>
+  <div class="card-quotes">
+    {% for q in e.quotes %}
+    <blockquote class="card-quote">
+      {{ q.text }}
+      {% if q.zh %}<span class="zh">{{ q.zh }}</span>{% endif %}
+      <span class="attr">{{ q.attr }}</span>
+    </blockquote>
+    {% endfor %}
+  </div>
+
+  <div class="card-section"><span class="arrow">→</span><span class="cn">小刀说</span><span class="en">TAKE</span><span class="rule"></span></div>
+  <p class="card-take">{{ e.take|safe }}</p>
+
+  {% if e.action %}
+  <div class="card-section"><span class="arrow">→</span><span class="cn">本周尝试</span><span class="en">ACTION</span><span class="rule"></span></div>
+  <div class="card-action">{{ e.action|safe }}</div>
+  {% endif %}
+
+  <div class="card-footer">
+    <span class="card-footer-url">{{ e.source.url }}</span>
+    <span>{{ daily.brand_name }} · {{ daily.date }}</span>
+  </div>
+</div>
+{% endfor %}
+
+</body>
+</html>
