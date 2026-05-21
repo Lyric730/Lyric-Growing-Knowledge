@@ -1,20 +1,20 @@
 ---
-name: daily
-description: 生成当日 AI 日报的撰写部分 — 从 enriched_raw.json 共鸣化撰写 + 写出 final.json（schema 验证后立即退出，渲染/截图/发布包由外层 run.py 接管）
+name: digest
+description: 生成当日 AI 日报（digest 产线）的撰写部分 — 从 enriched_raw.json 共鸣化撰写 + 写出 final.json（schema 验证后立即退出，渲染/截图/发布包由外层 run.py 接管）
 ---
 
-# /daily — AI 日报当日生成
+# /digest — AI 日报当日生成
 
 **触发示例**：
-- `/daily 2026-05-18` — 指定日期
-- `/daily` — 默认今天
+- `/digest 2026-05-18` — 指定日期
+- `/digest` — 默认今天
 
 **输出**：
-- `daily/<date>/work/final.json`（schema 验证过）
-- `daily/<date>/publish/daily.html`
-- `daily/<date>/publish/images/01-09.png`（9 张 1080×1440）
-- `daily/<date>/publish/post.md`（小红书发布稿）
-- `daily/<date>/publish/README.md`（发布步骤）
+- `daily/<date>/digest/work/final.json`（schema 验证过）
+- `daily/<date>/digest/publish/daily.html`
+- `daily/<date>/digest/publish/images/01-09.png`（9 张 1080×1440）
+- `daily/<date>/digest/publish/post.md`（小红书发布稿）
+- `daily/<date>/digest/publish/README.md`（发布步骤）
 
 ---
 
@@ -23,17 +23,17 @@ description: 生成当日 AI 日报的撰写部分 — 从 enriched_raw.json 共
 ### Step 1 — 数据准备
 ```bash
 DATE=<arg-or-today>
-ls daily/$DATE/work/enriched_raw.json
+ls daily/$DATE/digest/work/enriched_raw.json
 ```
 
 如果 `enriched_raw.json` 不存在：
-1. 跑 `python3 pipeline/fetch_aihot.py $DATE` 拿 raw.json
-2. 跑 `python3 pipeline/enrich_parallel.py $DATE`（耗时 5-10 min，后台跑）
+1. 跑 `python3 lines/digest/fetch_aihot.py $DATE` 拿 raw.json
+2. 跑 `python3 lines/digest/enrich_parallel.py $DATE`（耗时 5-10 min，后台跑）
 
 如果已存在：直接进 Step 2。
 
 ### Step 2 — 读 enriched_raw 全部候选
-读 `daily/$DATE/work/enriched_raw.json`，把 `items[]` 的关键字段全部列出来：
+读 `daily/$DATE/digest/work/enriched_raw.json`，把 `items[]` 的关键字段全部列出来：
 - title
 - source_type (article / x)
 - url
@@ -71,7 +71,7 @@ ls daily/$DATE/work/enriched_raw.json
 
 ### Step 4 — 每件共鸣化撰写
 
-**Schema**（Pydantic 验证）：`pipeline/schemas/enriched.py` Event
+**Schema**（Pydantic 验证）：`lines/digest/schemas/enriched.py` Event
 
 每件填：
 
@@ -156,19 +156,19 @@ for e in events:
 ### Step 6 — 落盘 + Schema 验证（**到此为止**）
 
 ```bash
-# 写出 final.json 到 daily/$DATE/work/final.json （JSON 文件）
+# 写出 final.json 到 daily/$DATE/digest/work/final.json （JSON 文件）
 # 然后 Schema 验证：
-python3 -c "from pipeline.schemas.enriched import Daily; import json; Daily.model_validate(json.load(open('daily/$DATE/work/final.json')))"
+python3 -c "from schemas.enriched import Daily; import json; Daily.model_validate(json.load(open('daily/$DATE/digest/work/final.json')))"
 ```
 
 **验证通过即任务完成。立即退出，不要做任何额外的事。**
 
-⚠ **绝对不要**在本 skill 内跑以下命令（它们由外层 `pipeline/run.py` 接管）：
-- ❌ `python3 pipeline/render_html.py ...`
-- ❌ `python3 pipeline/screenshot.py ...`（启动 chrome subprocess 在 detached 环境会 hang）
-- ❌ `python3 pipeline/auto_post_md.py ...`
-- ❌ `python3 pipeline/auto_readme.py ...`
-- ❌ 任何 `python3 -m http.server`、`./pipeline/dev.sh` 之类的长驻进程
+⚠ **绝对不要**在本 skill 内跑以下命令（它们由外层 `lines/digest/run.py` 接管）：
+- ❌ `python3 lines/digest/render_html.py ...`
+- ❌ `python3 lines/digest/screenshot.py ...`（启动 chrome subprocess 在 detached 环境会 hang）
+- ❌ `python3 lines/digest/auto_post_md.py ...`
+- ❌ `python3 lines/digest/auto_readme.py ...`
+- ❌ 任何 `python3 -m http.server`、`./lines/digest/dev.sh` 之类的长驻进程
 
 **Why 这样切分**：cron 触发时 `claude -p` 是无 TTY 的 detached 进程，启动 chrome headless 子进程会因 stdin/stdout pipe 不释放而 hang。把渲染/截图留给 run.py 的纯 Python 步骤跑，claude 写完 final.json 立即退出。
 
@@ -223,8 +223,8 @@ python3 -c "from pipeline.schemas.enriched import Daily; import json; Daily.mode
 
 ## 引用资源
 
-- Schema：`pipeline/schemas/enriched.py`
-- 渲染：`pipeline/render_html.py` + `pipeline/templates/daily.html.j2`
-- 截图：`pipeline/screenshot.py`
+- Schema：`lines/digest/schemas/enriched.py`
+- 渲染：`lines/digest/render_html.py` + `lines/digest/templates/daily.html.j2`
+- 截图：`lines/digest/screenshot.py`
 - Design context：`.impeccable.md` + `archive/2026-05-12-self-media-ai-positioning-design.md`
 - 项目宪法：`CLAUDE.md`

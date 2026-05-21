@@ -2,16 +2,16 @@
 一键 orchestrator — 跑通日报全链路。
 
 Usage:
-    python pipeline/run.py 2026-05-18                # 默认: 等人工 /daily
-    python pipeline/run.py 2026-05-18 --auto         # 自动调 claude -p /daily（无人值守）
-    python pipeline/run.py 2026-05-18 --skip-fetch   # 跳 fetch
-    python pipeline/run.py 2026-05-18 --skip-enrich  # 跳 enrich
-    python pipeline/run.py 2026-05-18 --only-render  # 仅渲染（final.json 已存在）
-    python pipeline/run.py 2026-05-18 --only-pack    # 仅生成 post.md+README
+    python lines/digest/run.py 2026-05-18                # 默认: 等人工 /digest
+    python lines/digest/run.py 2026-05-18 --auto         # 自动调 claude -p /digest（无人值守）
+    python lines/digest/run.py 2026-05-18 --skip-fetch   # 跳 fetch
+    python lines/digest/run.py 2026-05-18 --skip-enrich  # 跳 enrich
+    python lines/digest/run.py 2026-05-18 --only-render  # 仅渲染（final.json 已存在）
+    python lines/digest/run.py 2026-05-18 --only-pack    # 仅生成 post.md+README
 
 模式说明:
-- 默认: Step 3 停下来等你在 Claude 对话里跑 /daily，按 Enter 继续。
-- --auto: Step 3 自动调 `claude -p "/daily <date>"` 跑（用于 cron / Windows 任务计划程序）。
+- 默认: Step 3 停下来等你在 Claude 对话里跑 /digest，按 Enter 继续。
+- --auto: Step 3 自动调 `claude -p "/digest <date>"` 跑（用于 cron / Windows 任务计划程序）。
   需要 claude CLI 在 PATH 里。会用 --allowedTools 白名单防卡权限。
 """
 import argparse
@@ -20,7 +20,10 @@ import sys
 import time
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+# 这个脚本在 lines/digest/run.py，向上 3 层是 Self-Media/
+ROOT = Path(__file__).resolve().parents[2]
+LINE = "digest"
+SCRIPT_DIR = "lines/digest"
 
 
 def run(cmd: list[str], description: str) -> None:
@@ -43,18 +46,18 @@ def main() -> None:
     parser.add_argument("--skip-enrich", action="store_true")
     parser.add_argument("--only-render", action="store_true", help="跳过 fetch/enrich，仅渲染（final.json 已就绪）")
     parser.add_argument("--only-pack", action="store_true", help="仅生成 post.md + README（PNG 已存在）")
-    parser.add_argument("--auto", action="store_true", help="无人值守：用 claude -p 自动跑 /daily（替代 input 等待）")
+    parser.add_argument("--auto", action="store_true", help="无人值守：用 claude -p 自动跑 /digest（替代 input 等待）")
     args = parser.parse_args()
 
     date = args.date
-    work = ROOT / "daily" / date / "work"
-    pub = ROOT / "daily" / date / "publish"
+    work = ROOT / "daily" / date / LINE / "work"
+    pub = ROOT / "daily" / date / LINE / "publish"
     raw = work / "raw.json"
     enriched = work / "enriched_raw.json"
     final = work / "final.json"
     daily_html = pub / "daily.html"
 
-    print(f"═══ Daily Pipeline · {date} ═══")
+    print(f"═══ Digest Pipeline · {date} ═══")
 
     # ----- Step 1: fetch -----
     if args.only_render or args.only_pack:
@@ -62,7 +65,7 @@ def main() -> None:
     elif args.skip_fetch and file_exists(raw):
         print(f"\n→ Step 1 fetch: SKIP (--skip-fetch + raw.json 已存在)")
     else:
-        run(["python3", "pipeline/fetch_aihot.py", date], "Step 1: fetch_aihot")
+        run(["python3", f"{SCRIPT_DIR}/fetch_aihot.py", date], "Step 1: fetch_aihot")
 
     # ----- Step 2: enrich -----
     if args.only_render or args.only_pack:
@@ -70,25 +73,25 @@ def main() -> None:
     elif args.skip_enrich and file_exists(enriched):
         print(f"\n→ Step 2 enrich: SKIP (--skip-enrich + enriched_raw.json 已存在)")
     else:
-        run(["python3", "pipeline/enrich_parallel.py", date], "Step 2: enrich_parallel (耗时 5-10 min)")
+        run(["python3", f"{SCRIPT_DIR}/enrich_parallel.py", date], "Step 2: enrich_parallel (耗时 5-10 min)")
 
     # ----- Step 3: 等 final.json（或 auto 模式跑 claude -p） -----
     if args.only_pack and file_exists(final):
         print(f"\n→ Step 3 final.json: ✓ (--only-pack)")
     elif file_exists(final):
-        print(f"\n→ Step 3 final.json: ✓ already exists, skipping /daily")
+        print(f"\n→ Step 3 final.json: ✓ already exists, skipping /digest")
     elif args.auto:
-        print(f"\n→ Step 3 (--auto): 调 claude -p /daily {date}")
+        print(f"\n→ Step 3 (--auto): 调 claude -p /digest {date}")
         prompt = (
-            f"Run the /daily skill for date {date}. Read .claude/commands/daily.md.\n"
+            f"Run the /digest skill for date {date}. Read .claude/commands/digest.md.\n"
             f"\n"
-            f"YOUR ONLY JOB: write daily/{date}/work/final.json + run the Pydantic schema validation.\n"
+            f"YOUR ONLY JOB: write daily/{date}/digest/work/final.json + run the Pydantic schema validation.\n"
             f"\n"
             f"DO NOT run any of these (run.py handles them after you exit):\n"
-            f"  - python3 pipeline/render_html.py\n"
-            f"  - python3 pipeline/screenshot.py (starts chrome subprocess — hangs in detached cron env)\n"
-            f"  - python3 pipeline/auto_post_md.py\n"
-            f"  - python3 pipeline/auto_readme.py\n"
+            f"  - python3 lines/digest/render_html.py\n"
+            f"  - python3 lines/digest/screenshot.py (starts chrome subprocess — hangs in detached cron env)\n"
+            f"  - python3 lines/digest/auto_post_md.py\n"
+            f"  - python3 lines/digest/auto_readme.py\n"
             f"  - any HTTP server / chrome / long-running process\n"
             f"\n"
             f"After schema validates, print ONE line confirmation and exit. Do not ask permission."
@@ -100,8 +103,6 @@ def main() -> None:
                     "-p", prompt,
                     "--allowedTools", "Read Write Edit Bash",
                     "--add-dir", str(ROOT),
-                    # v3.11: 删 --max-budget-usd（Max 订阅包月不按 token，估算 budget 是误伤）
-                    # v3.11: 不指定 --model，用 Max 账户默认（Opus 质量更高）
                 ],
                 cwd=str(ROOT),
                 check=True,
@@ -120,12 +121,12 @@ def main() -> None:
                 print(f"  ✗ claude -p 失败 (exit {e.returncode}) 且 final.json 缺失")
                 sys.exit(e.returncode)
         if not file_exists(final):
-            print(f"  ✗ claude 跑完但 final.json 不存在 — 检查 daily.md skill 是否报错")
+            print(f"  ✗ claude 跑完但 final.json 不存在 — 检查 digest.md skill 是否报错")
             sys.exit(3)
         print(f"  ✓ final.json 已就绪（自动）")
     else:
         print(f"\n→ Step 3: 等 final.json (人工模式)")
-        print(f"  现在去 Claude 对话里跑 `/daily {date}` skill")
+        print(f"  现在去 Claude 对话里跑 `/digest {date}` skill")
         print(f"  期望：{final}")
         print(f"  按 Enter 继续（或 Ctrl-C 中断）...")
         try:
@@ -140,7 +141,8 @@ def main() -> None:
     # ----- Step 4: schema 验证 -----
     run(
         ["python3", "-c",
-         f"from pipeline.schemas.enriched import Daily; import json; "
+         f"import sys; sys.path.insert(0, 'lines/digest'); "
+         f"from schemas.enriched import Daily; import json; "
          f"Daily.model_validate(json.load(open('{final}'))); print('schema OK')"],
         "Step 4: schema 验证",
     )
@@ -149,31 +151,31 @@ def main() -> None:
     if args.only_pack and file_exists(daily_html):
         print(f"\n→ Step 5 render: SKIP (--only-pack + daily.html 已存在)")
     else:
-        run(["python3", "pipeline/render_html.py", str(final), str(daily_html)], "Step 5: render_html")
+        run(["python3", f"{SCRIPT_DIR}/render_html.py", str(final), str(daily_html)], "Step 5: render_html")
 
     # ----- Step 6: screenshot 9 PNG -----
     if args.only_pack:
         print(f"\n→ Step 6 screenshot: SKIP (--only-pack)")
     else:
         run(
-            ["python3", "pipeline/screenshot.py", str(final), str(daily_html), str(pub / "images")],
+            ["python3", f"{SCRIPT_DIR}/screenshot.py", str(final), str(daily_html), str(pub / "images")],
             "Step 6: screenshot 9 PNG",
         )
 
     # ----- Step 7: auto post.md + README -----
     run(
-        ["python3", "pipeline/auto_post_md.py", str(final), str(pub / "post.md")],
+        ["python3", f"{SCRIPT_DIR}/auto_post_md.py", str(final), str(pub / "post.md")],
         "Step 7a: auto_post_md",
     )
     run(
-        ["python3", "pipeline/auto_readme.py", str(final), str(pub / "README.md")],
+        ["python3", f"{SCRIPT_DIR}/auto_readme.py", str(final), str(pub / "README.md")],
         "Step 7b: auto_readme",
     )
 
-    print(f"\n═══ ✓ DONE — daily/{date}/publish/ ═══")
+    print(f"\n═══ ✓ DONE — daily/{date}/{LINE}/publish/ ═══")
     print(f"  下一步：")
     print(f"  1. 开 {pub}/post.md 选标题")
-    print(f"  2. 浏览器看 http://localhost:8765/daily/{date}/publish/daily.html")
+    print(f"  2. 浏览器看 http://localhost:8765/daily/{date}/{LINE}/publish/daily.html")
     print(f"  3. 复制 9 PNG 到桌面 → 小红书发布")
 
 

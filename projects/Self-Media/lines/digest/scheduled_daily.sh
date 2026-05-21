@@ -4,7 +4,7 @@
 #
 # Windows 任务计划程序 action:
 #   程序：C:\Windows\System32\wsl.exe
-#   参数：bash -lc "/home/lyric/Making money/Lyric-Self-Improve/projects/Self-Media/pipeline/scheduled_daily.sh"
+#   参数：bash -lc "/home/lyric/Making money/Lyric-Self-Improve/projects/Self-Media/lines/digest/scheduled_daily.sh"
 
 set -e
 
@@ -26,10 +26,10 @@ fi
 PROJECT="/home/lyric/Making money/Lyric-Self-Improve/projects/Self-Media"
 DATE=$(date +%F)                    # "今天" = 2026-05-18
 LOG="/tmp/daily-${DATE}.log"
-STATE_FILE="${PROJECT}/daily/${DATE}/.scheduled-state"
+STATE_FILE="${PROJECT}/daily/${DATE}/digest/.scheduled-state"
 
 cd "$PROJECT"
-mkdir -p "daily/${DATE}"
+mkdir -p "daily/${DATE}/digest"
 
 # ----- 头部 log -----
 {
@@ -43,7 +43,7 @@ mkdir -p "daily/${DATE}"
 
 # ----- 跑 run.py --auto -----
 set +e
-python3 pipeline/run.py "$DATE" --auto >> "$LOG" 2>&1
+python3 lines/digest/run.py "$DATE" --auto >> "$LOG" 2>&1
 EXIT=$?
 set -e
 
@@ -52,21 +52,22 @@ if [ "$EXIT" -eq 0 ]; then
     {
       echo ""
       echo "═══ ✓ DONE @ $(date '+%H:%M:%S') ═══"
-      echo "  → daily/${DATE}/publish/post.md"
-      echo "  → 9 PNG 在 daily/${DATE}/publish/images/"
+      echo "  → daily/${DATE}/digest/publish/post.md"
+      echo "  → 9 PNG 在 daily/${DATE}/digest/publish/images/"
+      echo ""
     } | tee -a "$LOG"
 
     # ----- 发邮件（含 9 PNG + post.md + README 附件）-----
     {
       echo ""
       echo "→ 发邮件通知..."
-      python3 pipeline/send_notify.py "$DATE" 2>&1 || echo "  ⚠ 邮件发送失败但日报已生成"
+      python3 lines/digest/send_notify.py "$DATE" 2>&1 || echo "  ⚠ 邮件发送失败但日报已生成"
     } | tee -a "$LOG"
 
     # Windows 通知（成功）
     if command -v powershell.exe &> /dev/null; then
         powershell.exe -Command "
-            \$msg = '日报已生成：daily/${DATE}/publish/。已发邮件，审完发小红书。'
+            \$msg = '日报已生成：daily/${DATE}/digest/publish/。已发邮件，审完发小红书。'
             \$bal = New-Object System.Windows.Forms.NotifyIcon
             \$bal.Icon = [System.Drawing.SystemIcons]::Information
             \$bal.BalloonTipTitle = 'Self-Media 日报 ✓'
@@ -90,7 +91,7 @@ else
     {
       echo ""
       echo "→ 发失败邮件..."
-      python3 pipeline/send_notify.py "$DATE" --fail "run.py exit=${EXIT}" 2>&1 || echo "  ⚠ 邮件发送也失败"
+      python3 lines/digest/send_notify.py "$DATE" --fail "run.py exit=${EXIT}" 2>&1 || echo "  ⚠ 邮件发送也失败"
     } | tee -a "$LOG"
 
     # Windows 通知（失败）

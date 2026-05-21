@@ -6,7 +6,7 @@ short-lived HTTP server (needed because chrome --headless follows :target via
 URL fragments, which only work over http(s), not file://).
 
 Usage:
-    python pipeline/screenshot.py <enriched.json> <daily.html> <output_dir>
+    python lines/digest/screenshot.py <enriched.json> <daily.html> <output_dir>
 
 Output: <output_dir>/01-cover.png + 02-event-01.png ... NN-event-NN.png
 """

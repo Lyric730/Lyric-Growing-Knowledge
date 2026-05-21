@@ -2,23 +2,23 @@
 # Dev preview — 改完 daily.html.j2 跑这个一行命令就看新效果
 #
 # Usage:
-#   ./pipeline/dev.sh [YYYY-MM-DD]              只 render HTML 看预览
-#   ./pipeline/dev.sh [YYYY-MM-DD] --shoot      额外跑 chrome 截 9 张 PNG
+#   ./lines/digest/dev.sh [YYYY-MM-DD]              只 render HTML 看预览
+#   ./lines/digest/dev.sh [YYYY-MM-DD] --shoot      额外跑 chrome 截 9 张 PNG
 #
 # Output structure (每日发布包):
-#   daily/<date>/publish/daily.html              浏览器预览
-#   daily/<date>/publish/images/*.png            9 张发布素材 (--shoot)
-#   daily/<date>/publish/post.md                 小红书文案
+#   daily/<date>/digest/publish/daily.html              浏览器预览
+#   daily/<date>/digest/publish/images/*.png            9 张发布素材 (--shoot)
+#   daily/<date>/digest/publish/post.md                 小红书文案
 
 set -e
 DATE="${1:-2026-05-12}"
 SHOOT="${2:-}"
 PORT="8765"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-SAMPLE="$ROOT/pipeline/fixtures/sample_enriched.json"
-OUT_REL="daily/$DATE/publish/daily.html"
+SAMPLE="$ROOT/lines/digest/fixtures/sample_enriched.json"
+OUT_REL="daily/$DATE/digest/publish/daily.html"
 OUT="$ROOT/$OUT_REL"
-IMG_DIR="$ROOT/daily/$DATE/publish/images"
+IMG_DIR="$ROOT/daily/$DATE/digest/publish/images"
 
 # 1) Render Jinja2 → HTML
 cd "$ROOT/pipeline" && python3 render_html.py "$SAMPLE" "$OUT"

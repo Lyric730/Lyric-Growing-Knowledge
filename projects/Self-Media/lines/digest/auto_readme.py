@@ -2,7 +2,7 @@
 从 final.json 生成 publish/README.md（发布步骤 + 文件清单）
 
 Usage:
-    python pipeline/auto_readme.py <final.json> <output.md>
+    python lines/digest/auto_readme.py <final.json> <output.md>
 """
 import argparse
 import json
@@ -24,15 +24,15 @@ README_TEMPLATE = """# {date} 发布包
 | 文件 | 用途 |
 |---|---|
 | `post.md` | 小红书发布稿（标题候选 / 正文 / 标签 / 上传顺序 / 合规 checklist）|
-| `daily.html` | 浏览器预览（`http://localhost:8765/daily/{date}/publish/daily.html`）|
+| `daily.html` | 浏览器预览（`http://localhost:8765/daily/{date}/digest/publish/daily.html`）|
 | `images/01-cover.png` | 封面（上传第 1 张）|
 | `images/02-event-01.png` ~ `09-event-08.png` | 8 张事件卡（按顺序上传）|
 
 ## 发布步骤
 
 1. **打开 post.md**，从 4 个标题里选 1 个
-2. **浏览器开 daily.html** 最终检查（`http://localhost:8765/daily/{date}/publish/daily.html`）
-3. **Windows 拿图**：资源管理器 → `\\\\wsl.localhost\\Ubuntu\\home\\lyric\\Making money\\Lyric-Self-Improve\\projects\\Self-Media\\daily\\{date}\\publish\\images\\`
+2. **浏览器开 daily.html** 最终检查（`http://localhost:8765/daily/{date}/digest/publish/daily.html`）
+3. **Windows 拿图**：资源管理器 → `\\\\wsl.localhost\\Ubuntu\\home\\lyric\\Making money\\Lyric-Self-Improve\\projects\\Self-Media\\daily\\{date}\\digest\\publish\\images\\`
 4. **复制 9 张 PNG 到桌面**
 5. **小红书 App 发布**：按 01 → 09 顺序上传 → 粘贴 post.md 正文 + 标签 → 发布
 

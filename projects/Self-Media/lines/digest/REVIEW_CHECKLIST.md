@@ -1,13 +1,13 @@
 # 日报人工审核 Checklist · 10-15 min
 
-> 每次 `/daily YYYY-MM-DD` 跑完 + `pipeline/run.py` 出完 9 PNG 之后，小刀老师按这份过。
+> 每次 `/daily YYYY-MM-DD` 跑完 + `lines/digest/run.py` 出完 9 PNG 之后，小刀老师按这份过。
 > 通过 = 可发；任何一项不过 → 回去改 `final.json` 重 render。
 
 ---
 
 ## 1️⃣ 内容质量（5 min）
 
-打开 `daily/<date>/publish/daily.html` 浏览器看一遍。
+打开 `daily/<date>/digest/publish/daily.html` 浏览器看一遍。
 
 ### 标题 / 8 件选择
 - [ ] 8 件齐（封面 + 8 张事件卡 = 9 slides）
@@ -48,7 +48,7 @@
 | `02-event-01.png` | rail+title+meta+story+quotes+take+action+footer 完整不溢出 |
 | `09-event-08.png` | action 没被 footer 重叠 / footer 完整可见 |
 
-- [ ] 9 张 PNG 严格 1080×1440（PIL 命令验证：`python3 -c "from PIL import Image; [print(Image.open(f'daily/<date>/publish/images/{f}').size) for f in sorted(...)]"`）
+- [ ] 9 张 PNG 严格 1080×1440（PIL 命令验证：`python3 -c "from PIL import Image; [print(Image.open(f'daily/<date>/digest/publish/images/{f}').size) for f in sorted(...)]"`）
 - [ ] 没看到 grain 背景小点点
 - [ ] 背景近白（chroma 0.005）不是米黄
 - [ ] 4 个 section labels 都明显（→ 报道 / 评论区 / 小刀说 / 本周尝试）
@@ -58,7 +58,7 @@
 ## 3️⃣ 在职合规 grep（1 min）
 
 ```bash
-grep -i "字节\|腾讯\|阿里\|内部 PRD\|本周 OKR\|@team" daily/<date>/publish/post.md daily/<date>/work/final.json
+grep -i "字节\|腾讯\|阿里\|内部 PRD\|本周 OKR\|@team" daily/<date>/digest/publish/post.md daily/<date>/digest/work/final.json
 ```
 
 - [ ] grep 0 hit（auto_post_md.py 已自动 grep，但手工改正文后必须再跑）
@@ -67,7 +67,7 @@ grep -i "字节\|腾讯\|阿里\|内部 PRD\|本周 OKR\|@team" daily/<date>/pub
 
 ## 4️⃣ Post.md（2 min）
 
-打开 `daily/<date>/publish/post.md`：
+打开 `daily/<date>/digest/publish/post.md`：
 
 - [ ] 4 个标题候选里选 1 个（首选 / 备选 / 自己改）
 - [ ] 正文 200-400 字（不超 1000）
@@ -93,4 +93,4 @@ grep -i "字节\|腾讯\|阿里\|内部 PRD\|本周 OKR\|@team" daily/<date>/pub
 - ❌ quotes 编造（attr 看着假）
 - ❌ 任何一件 story < 300 字（密度不够 = 不达标 5/12 baseline）
 
-→ 回 `final.json` 改 → 跑 `python3 pipeline/run.py <date> --only-render`（跳过 fetch + enrich）
+→ 回 `final.json` 改 → 跑 `python3 lines/digest/run.py <date> --only-render`（跳过 fetch + enrich）

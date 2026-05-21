@@ -34,43 +34,65 @@ git -C "/home/lyric/Making money/Lyric-Self-Improve" branch --show-current
 
 ---
 
-## 项目结构
+## 项目结构（多产线架构 · 2026-05-21 重组）
+
+**核心原则**：每条内容产线 = 一个独立 `lines/<name>/` 子目录，自带代码 / 模板 / 视觉 brief / 审稿 DoD。**产线之间不共享设计资产**（人群定位、aesthetic、字体色彩各自独立）。
 
 ```
 Self-Media/
-├── CLAUDE.md                    项目宪法（本文件，入口）
-├── .impeccable.md               视觉设计 brief（craft 模式自动加载）
-├── archive/                     已归档的策略/设计文档
-├── pipeline/                    日报 pipeline 脚本（W0/W1 进行中）
-│   ├── PLAN.md                  Pipeline 总规划 · 化整为一
-│   ├── dev.sh                   一键预览（render + serve）
-│   ├── fetch_aihot.py           Step 1 抓 aihot API
-│   ├── enrich_parallel.py       Step 3 X/非 X 分流精读
-│   ├── og_fetch.py              Step 3 附加 抓 hero 素材
-│   ├── render_html.py           Step 6 Jinja2 渲染
-│   ├── screenshot.py            Step 6 chrome headless 1080×1440 PNG
-│   ├── schemas/enriched.py      Pydantic Daily/Event 模型
-│   ├── templates/daily.html.j2  9 图 Jinja2 模板（cover + 8 events）
-│   └── fixtures/sample_enriched.json  Sprint 0 假数据
-└── daily/<YYYY-MM-DD>/          每日日报产物（三段式）
-    ├── publish/                 ← 发布包（直接用）
-    │   ├── README.md            使用说明
-    │   ├── post.md              小红书发布稿
-    │   ├── daily.html           浏览器预览
-    │   └── images/              9 张 1080×1440 PNG
-    ├── work/                    ← pipeline 中间产物
-    │   ├── raw.json             aihot 原始
-    │   ├── enriched_raw.json    精读后
-    │   ├── final.json           撰写完成（喂模板）
-    │   └── assets/              抓到的 hero 素材
-    └── _archive/                ← 开发过程产物
+├── CLAUDE.md                    项目宪法（本文件，入口；跨产线）
+├── topics/                      孤立长图文 / 单篇深度（未来可能演化成新产线）
+│
+├── lines/                       ← 所有内容产线代码 + 资产
+│   └── digest/                  ← 产线 1：AI 日报（共鸣速览）
+│       ├── PLAN.md              产线总规划
+│       ├── REVIEW_CHECKLIST.md  人工审稿 10-15 min DoD
+│       ├── .impeccable.md       digest 产线专属视觉 brief
+│       ├── archive/             digest 产线归档（定位 design 等）
+│       ├── run.py               orchestrator (7 步全链路)
+│       ├── scheduled_daily.sh   Windows 任务 → WSL bash 入口
+│       ├── send_notify.py       Gmail 邮件通知（含 11 附件）
+│       ├── fetch_aihot.py       Step 1 抓 aihot API
+│       ├── enrich_parallel.py   Step 2 X/非 X 分流精读
+│       ├── og_fetch.py          抓 hero 素材
+│       ├── attach_hero.py       hero 素材接入
+│       ├── render_html.py       Jinja2 渲染
+│       ├── screenshot.py        chrome headless 1080×1440 PNG
+│       ├── auto_post_md.py      生成 publish/post.md
+│       ├── auto_readme.py       生成 publish/README.md
+│       ├── dev.sh               本地预览（render + serve）
+│       ├── setup_windows_task.ps1  注册定时任务
+│       ├── schemas/enriched.py  Pydantic Daily/Event 模型
+│       ├── templates/           Jinja2 模板（daily.html.j2 + post.md.j2）
+│       └── fixtures/sample_enriched.json
+│
+├── .claude/commands/            ← Slash 命令（产线名一致）
+│   └── digest.md                /digest skill — digest 产线撰写
+│
+└── daily/<YYYY-MM-DD>/          ← 产物按日期 + 产线双重隔离
+    └── <line-name>/             （目前只有 digest，未来 e.g. weekly/）
+        ├── publish/             发布包（直接用）
+        │   ├── README.md / post.md / daily.html / images/01-09.png
+        ├── work/                pipeline 中间产物（raw / enriched / final.json）
+        └── .scheduled-state     定时任务执行状态
 ```
 
 每天发布工作流：
-1. `./pipeline/dev.sh YYYY-MM-DD --shoot` 一键 render + 出 9 PNG
-2. 浏览器开 `http://localhost:8765/daily/YYYY-MM-DD/publish/daily.html` 预览
-3. 资源管理器开 `publish/images/` 拿 9 张 PNG，复制到桌面
-4. 按 `publish/post.md` 标题 + 正文 + 标签发小红书
+1. **自动**：Windows 任务 12:00 触发 → wsl bash → `lines/digest/scheduled_daily.sh` → 全链路 + 邮件到 Gmail
+2. **手工**：`python3 lines/digest/run.py YYYY-MM-DD --only-render`（已有 final.json 时只补 PNG）
+3. 收 Gmail 邮件预览 → 复制 9 PNG 到桌面 → 小红书发
+
+---
+
+## 新增产线规则（重要）
+
+未来加新产线（如 weekly / deep-piece / video-script）的硬约束：
+
+1. **新建独立 `lines/<new-name>/` 目录**，**不复用 digest 的代码 / 模板 / 视觉**
+2. **新建独立 `lines/<new-name>/.impeccable.md`**，重新做视觉 brief（人群、aesthetic、字体、色彩）
+3. **新建独立 `.claude/commands/<new-name>.md`** slash command
+4. **产物落 `daily/<date>/<new-name>/`**，和 digest 物理隔离
+5. CLAUDE.md 这份项目宪法仍是跨产线唯一入口；如果产线间发生冲突，分别在 `lines/<name>/PLAN.md` 解决
 
 ---
 
@@ -78,9 +100,12 @@ Self-Media/
 
 | 文档 | 内容 | 何时看 |
 |---|---|---|
-| `archive/2026-05-12-self-media-ai-positioning-design.md` | 主 design：受众三层、内容支柱、平台收敛、90 天节奏、Kill 标准、风险清单、学习路径 | 任何策略决策前必读 |
-| `.impeccable.md` | 视觉设计 brief：人格、美学方向、字体/色彩/排版方向、anti-references | 任何 HTML PPT / 视觉动作前必读；`/impeccable craft` 会自动加载 |
-| 本文件 | 项目宪法 + 项目结构 + Design Context 镜像 | 进入项目第一时间读 |
+| 本文件 | 项目宪法 + 多产线结构 + Design Context 镜像 | 进入项目第一时间读 |
+| `lines/digest/archive/2026-05-12-self-media-ai-positioning-design.md` | digest 产线主 design：受众三层、内容支柱、90 天节奏 | digest 策略决策前 |
+| `lines/digest/.impeccable.md` | digest 产线视觉 brief（**仅本产线复用，新产线必须独立 brief**）| digest 视觉动作前；`/impeccable craft` 加载 |
+| `lines/digest/PLAN.md` | digest pipeline 工程规划 | digest 改架构前 |
+| `lines/digest/REVIEW_CHECKLIST.md` | digest 人工审稿 DoD | 每期发布前 10-15 min |
+| `.claude/commands/digest.md` | `/digest <date>` skill — Claude 撰写 final.json | 跑 /digest 时自动加载 |
 
 ---
 

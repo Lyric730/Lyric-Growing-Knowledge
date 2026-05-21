@@ -7,11 +7,11 @@ Output schema (per item):
   - id, title, title_en, url, source, publishedAt, summary, category
 
 Usage:
-    python pipeline/fetch_aihot.py <YYYY-MM-DD> [--take 50]
+    python lines/digest/fetch_aihot.py <YYYY-MM-DD> [--take 50]
 
 Example:
-    python pipeline/fetch_aihot.py 2026-05-15 --take 50
-    → daily/2026-05-15/work/raw.json
+    python lines/digest/fetch_aihot.py 2026-05-15 --take 50
+    → daily/2026-05-15/digest/work/raw.json
 """
 import argparse
 import json
@@ -47,7 +47,7 @@ def main() -> None:
     args = parser.parse_args()
 
     target = date.fromisoformat(args.date)
-    out_dir = Path(args.root) / "daily" / args.date / "work"
+    out_dir = Path(args.root) / "daily" / args.date / "digest" / "work"
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / "raw.json"
 

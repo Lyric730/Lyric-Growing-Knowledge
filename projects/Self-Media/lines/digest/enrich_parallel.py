@@ -16,7 +16,7 @@ Step 3: 对 raw.json 里每条候选做精读 → enriched_raw.json
       - body_excerpt (非 X 文章首段)
 
 Usage:
-    python pipeline/enrich_parallel.py <YYYY-MM-DD> [--limit 30]
+    python lines/digest/enrich_parallel.py <YYYY-MM-DD> [--limit 30]
 """
 import argparse
 import json
@@ -131,8 +131,8 @@ def main() -> None:
     args = parser.parse_args()
 
     root = Path(args.root)
-    raw_path = root / "daily" / args.date / "work" / "raw.json"
-    out_path = root / "daily" / args.date / "work" / "enriched_raw.json"
+    raw_path = root / "daily" / args.date / "digest" / "work" / "raw.json"
+    out_path = root / "daily" / args.date / "digest" / "work" / "enriched_raw.json"
     if not raw_path.exists():
         raise SystemExit(f"missing: {raw_path}  (run fetch_aihot.py first)")
 

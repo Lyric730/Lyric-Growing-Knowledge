@@ -9,7 +9,7 @@
 ## TL;DR
 
 dry-run v1.5（9 图模板）已 ship 🟡 可用级。
-**Pipeline 目标**：每天小刀老师 `/daily 2026-MM-DD` 触发，Claude（我）在对话里跑"判断步骤"+ 调机械脚本，10-15 min 完成 9 图。
+**Pipeline 目标**：每天小刀老师 `/digest 2026-MM-DD` 触发，Claude（我）在对话里跑"判断步骤"+ 调机械脚本，10-15 min 完成 9 图。
 **关键架构（2026-05-15 拍板）**：**不用 Claude API**——共鸣预筛/撰写/选 hero/fact check 全部由我在对话里执行，封装成 Claude Code skill。
 **关键路径**：模板抽象（Sprint 0）→ 抓取层（Sprint 1）→ Skill 化（Sprint 2，合并原 S2/S3）。
 **3 个 Sprint × 5-10h/周 ≈ 2-3 周完成 v1**。
@@ -143,11 +143,11 @@ dry-run v1.5（9 图模板）已 ship 🟡 可用级。
 
 | 文件 | 用途 | 依赖 |
 |---|---|---|
-| `pipeline/fetch_aihot.py` | Step 1 抓 aihot API → raw.json | requests |
-| `pipeline/enrich_parallel.py` | Step 3 并行精读（X 用 OpenCLI / 非 X 用 WebFetch）→ enriched_raw.json | subprocess |
-| `pipeline/og_fetch.py` | 抓 hero 素材（og:image / 推文 media，抓不到不报错）| curl + grep |
-| `pipeline/render_html.py` | Step 6 Jinja2 模板渲染 → daily.html | jinja2 + pydantic |
-| `pipeline/screenshot.py` | Step 6 chrome headless 1080×1440 → 9 PNG | subprocess |
+| `lines/digest/fetch_aihot.py` | Step 1 抓 aihot API → raw.json | requests |
+| `lines/digest/enrich_parallel.py` | Step 3 并行精读（X 用 OpenCLI / 非 X 用 WebFetch）→ enriched_raw.json | subprocess |
+| `lines/digest/og_fetch.py` | 抓 hero 素材（og:image / 推文 media，抓不到不报错）| curl + grep |
+| `lines/digest/render_html.py` | Step 6 Jinja2 模板渲染 → daily.html | jinja2 + pydantic |
+| `lines/digest/screenshot.py` | Step 6 chrome headless 1080×1440 → 9 PNG | subprocess |
 
 ### B.4 判断步骤（由 Claude 在对话里执行）
 
@@ -161,7 +161,7 @@ dry-run v1.5（9 图模板）已 ship 🟡 可用级。
 
 ### B.5 Skill 层（要写）
 
-主入口：`.claude/commands/daily.md`（项目级 slash command，输入 `/daily 2026-05-15` 触发）
+主入口：`.claude/commands/digest.md`（项目级 slash command，输入 `/digest 2026-05-15` 触发）
 
 内容应包含：
 - 7 步 workflow 主流程
@@ -174,7 +174,7 @@ dry-run v1.5（9 图模板）已 ship 🟡 可用级。
 
 ### B.6 配置层
 
-- `pipeline/config.yaml` — aihot endpoint / OpenCLI daemon URL / 输出路径
+- `lines/digest/config.yaml` — aihot endpoint / OpenCLI daemon URL / 输出路径
 - 无需 `.env`（不依赖 Claude API key）
 
 ---
@@ -186,11 +186,11 @@ dry-run v1.5（9 图模板）已 ship 🟡 可用级。
 **目标**：把 dry-run.html 改造成 Jinja2 模板，能用 enriched.json 一键填充生成 9 张图。
 
 任务：
-1. 把 dry-run.html 拆 → `pipeline/templates/daily.html.j2`
+1. 把 dry-run.html 拆 → `lines/digest/templates/daily.html.j2`
 2. 6 种 hero / 5 种 data-points 切换块
 3. 定义 `enriched.json` schema（Pydantic 推荐）
-4. 写 `pipeline/render_html.py`（CLI：`python render_html.py enriched.json output.html`）
-5. 写 `pipeline/screenshot.py`（HTML → 9 PNG）
+4. 写 `lines/digest/render_html.py`（CLI：`python render_html.py enriched.json output.html`）
+5. 写 `lines/digest/screenshot.py`（HTML → 9 PNG）
 6. **验收**：手填一份 enriched.json，跑两个脚本，复现 dry-run 9 张图
 
 **产出**：`templates/daily.html.j2` + `render_html.py` + `screenshot.py` + sample enriched.json
@@ -231,22 +231,22 @@ daily/<YYYY-MM-DD>/
 
 ### Sprint 2 — Skill 化 + 编排（W3，5-7h）
 
-**目标**：把"我每天执行"的判断步骤封装成 `.claude/commands/daily.md`，加机械步骤 wrapper，串通 e2e。
+**目标**：把"我每天执行"的判断步骤封装成 `.claude/commands/digest.md`，加机械步骤 wrapper，串通 e2e。
 
 任务：
-1. 写 `.claude/commands/daily.md` 主入口
+1. 写 `.claude/commands/digest.md` 主入口
    - 7 步 workflow（机械/判断标注清楚）
    - 6 种 hero 类型决策树
    - 4 条钩子纪律 datasheet
    - 评论区 fact check 方法
    - 在职合规检查清单（公司名 / 内部数据红线）
-2. 写 `pipeline/run.py` 机械步骤 wrapper（串 fetch + enrich + render + screenshot）
+2. 写 `lines/digest/run.py` 机械步骤 wrapper（串 fetch + enrich + render + screenshot）
 3. 写 `templates/post.md.j2` 小红书发布文案模板
 4. 写 `REVIEW_CHECKLIST.md` 小刀老师 10-15 min review 流程
-5. 走通 e2e：`/daily 2026-05-NN` → 我执行判断 → 调 `run.py` 跑机械步骤 → 出 9 PNG + post.md
+5. 走通 e2e：`/digest 2026-05-NN` → 我执行判断 → 调 `run.py` 跑机械步骤 → 出 9 PNG + post.md
 6. **验收**：连续 3 天 e2e 跑通，每天人工时间 ≤ 15 min
 
-**产出**：`.claude/commands/daily.md` + `run.py` + `post.md.j2` + `REVIEW_CHECKLIST.md`
+**产出**：`.claude/commands/digest.md` + `run.py` + `post.md.j2` + `REVIEW_CHECKLIST.md`
 
 ---
 
@@ -284,8 +284,8 @@ Self-Media/
 ├── archive/
 ├── .claude/
 │   └── commands/
-│       └── daily.md               【关键】skill 入口 — `/daily 2026-05-15` 触发
-├── pipeline/
+│       └── digest.md               【关键】skill 入口 — `/digest 2026-05-15` 触发
+├── lines/digest/
 │   ├── PLAN.md                    本文件
 │   ├── config.yaml
 │   ├── run.py                     机械步骤 wrapper（fetch → enrich → render → screenshot）

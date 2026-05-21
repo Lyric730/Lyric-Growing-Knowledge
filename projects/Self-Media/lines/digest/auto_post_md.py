@@ -2,7 +2,7 @@
 从 final.json 渲染 post.md.j2 → publish/post.md
 
 Usage:
-    python pipeline/auto_post_md.py <final.json> <output.md>
+    python lines/digest/auto_post_md.py <final.json> <output.md>
 """
 import argparse
 import json
@@ -13,8 +13,9 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-ROOT = Path(__file__).resolve().parent.parent
-TEMPLATE_DIR = ROOT / "pipeline" / "templates"
+# 这个脚本在 lines/digest/auto_post_md.py，向上 3 层是 Self-Media/
+ROOT = Path(__file__).resolve().parents[2]
+TEMPLATE_DIR = Path(__file__).parent / "templates"
 
 
 def strip_em(s: str) -> str:

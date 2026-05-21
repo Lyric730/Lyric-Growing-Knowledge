@@ -1,5 +1,5 @@
 """
-Step 3 附加：抓 hero 素材（og:image / 推文 media）→ daily/<date>/work/assets/
+Step 3 附加：抓 hero 素材（og:image / 推文 media）→ daily/<date>/digest/work/assets/
 
 读 enriched_raw.json，对每条尽量抓一张 hero 候选图：
 - 文章链接：curl 下载 og_image (enriched_raw 里已有 URL)
@@ -11,7 +11,7 @@ Step 3 附加：抓 hero 素材（og:image / 推文 media）→ daily/<date>/wor
 非 fatal — 抓不到的项目跳过，pipeline 后续 fallback 到 SVG/CSS hero。
 
 Usage:
-    python pipeline/og_fetch.py <YYYY-MM-DD>
+    python lines/digest/og_fetch.py <YYYY-MM-DD>
 """
 import argparse
 import json
@@ -82,8 +82,8 @@ def main() -> None:
     args = parser.parse_args()
 
     root = Path(args.root)
-    enriched_path = root / "daily" / args.date / "work" / "enriched_raw.json"
-    assets_dir = root / "daily" / args.date / "work" / "assets"
+    enriched_path = root / "daily" / args.date / "digest" / "work" / "enriched_raw.json"
+    assets_dir = root / "daily" / args.date / "digest" / "work" / "assets"
     if not enriched_path.exists():
         raise SystemExit(f"missing: {enriched_path}  (run enrich_parallel.py first)")
 

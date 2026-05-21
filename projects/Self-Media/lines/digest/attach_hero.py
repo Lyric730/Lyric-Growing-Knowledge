@@ -2,17 +2,17 @@
 Step 5: 把 og_fetch 抓到的素材接入 final.json hero.image_url
 
 工作流：
-  1. 读 daily/<date>/work/final.json (8 events 选好且撰写完成)
-  2. 读 daily/<date>/work/enriched_raw.json (含 url → raw_id 映射)
+  1. 读 daily/<date>/digest/work/final.json (8 events 选好且撰写完成)
+  2. 读 daily/<date>/digest/work/enriched_raw.json (含 url → raw_id 映射)
   3. 对每条 event 按 source.url 查 raw_id，去 work/assets/ 找抓到的图：
        - og:image     work/assets/<raw_id>.<ext>
        - X media      work/assets/<raw_id>/tweets/tweet_*.{jpg,mp4}
-  4. 把图复制到 daily/<date>/publish/images/assets/<event-id>.<ext>
+  4. 把图复制到 daily/<date>/digest/publish/images/assets/<event-id>.<ext>
   5. 填 final.event.hero.image_url = "images/assets/<event-id>.<ext>"
      抓不到 → 保留 hero.big/sub 不动（fallback 大字）
 
 Usage:
-    python pipeline/attach_hero.py <YYYY-MM-DD>
+    python lines/digest/attach_hero.py <YYYY-MM-DD>
 """
 import argparse
 import json
@@ -27,8 +27,8 @@ def main() -> None:
     args = parser.parse_args()
 
     root = Path(args.root)
-    work_dir = root / "daily" / args.date / "work"
-    publish_dir = root / "daily" / args.date / "publish"
+    work_dir = root / "daily" / args.date / "digest" / "work"
+    publish_dir = root / "daily" / args.date / "digest" / "publish"
     final_path = work_dir / "final.json"
     enriched_path = work_dir / "enriched_raw.json"
     assets_src = work_dir / "assets"

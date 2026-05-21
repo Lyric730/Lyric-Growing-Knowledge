@@ -2,8 +2,8 @@
 日报跑完后发邮件通知到小刀 Gmail。
 
 Usage:
-    python3 pipeline/send_notify.py 2026-05-21              # 成功通知
-    python3 pipeline/send_notify.py 2026-05-21 --fail "原因" # 失败通知
+    python3 lines/digest/send_notify.py 2026-05-21              # 成功通知
+    python3 lines/digest/send_notify.py 2026-05-21 --fail "原因" # 失败通知
 
 环境变量（由 ~/.self-media-secrets.env source 注入）:
     SMTP_HOST  smtp.gmail.com
@@ -29,7 +29,9 @@ from pathlib import Path
 
 import socks  # type: ignore
 
-ROOT = Path(__file__).resolve().parent.parent
+# 这个脚本在 lines/digest/send_notify.py，向上 3 层是 Self-Media/
+ROOT = Path(__file__).resolve().parents[2]
+LINE = "digest"
 
 # Gmail SMTP SSL 直连在国内被中间盒拦——SSL 握手会 timeout。
 # 走 Clash mixed-port (7897) 的 SOCKS5 绕开。Clash 必须开着。
@@ -51,11 +53,11 @@ def build_success_body(date: str, data: dict) -> tuple[str, str]:
     lines += [
         "",
         "—— 发布步骤 ——",
-        f"1. 浏览器审稿: http://localhost:8765/daily/{date}/publish/daily.html",
+        f"1. 浏览器审稿: http://localhost:8765/daily/{date}/{LINE}/publish/daily.html",
         f"2. 拿 9 PNG（资源管理器打开）:",
-        f"   \\\\wsl.localhost\\Ubuntu\\home\\lyric\\Making money\\Lyric-Self-Improve\\projects\\Self-Media\\daily\\{date}\\publish\\images\\",
+        f"   \\\\wsl.localhost\\Ubuntu\\home\\lyric\\Making money\\Lyric-Self-Improve\\projects\\Self-Media\\daily\\{date}\\{LINE}\\publish\\images\\",
         f"3. 看发布稿:",
-        f"   \\\\wsl.localhost\\Ubuntu\\home\\lyric\\Making money\\Lyric-Self-Improve\\projects\\Self-Media\\daily\\{date}\\publish\\post.md",
+        f"   \\\\wsl.localhost\\Ubuntu\\home\\lyric\\Making money\\Lyric-Self-Improve\\projects\\Self-Media\\daily\\{date}\\{LINE}\\publish\\post.md",
         f"4. 小红书 19-22 点发（按 01 → 09 顺序上传 9 张 PNG）",
         "",
         f"—— 自检 ——",
@@ -80,7 +82,7 @@ def build_fail_body(date: str, reason: str) -> tuple[str, str]:
         f"或 Windows 资源管理器开:",
         f"   \\\\wsl.localhost\\Ubuntu\\tmp\\daily-{date}.log",
         f"",
-        "建议：手工排查后跑 `python3 pipeline/run.py {date} --only-render`（如 final.json 已生成）",
+        f"建议：手工排查后跑 `python3 lines/digest/run.py {date} --only-render`（如 final.json 已生成）",
     ]
     subject = f"✗ 日报 {date} 失败"
     return subject, "\n".join(body)
@@ -161,7 +163,7 @@ def main() -> None:
         if log.exists():
             attachments.append(log)
     else:
-        final = ROOT / "daily" / args.date / "work" / "final.json"
+        final = ROOT / "daily" / args.date / LINE / "work" / "final.json"
         if not final.exists():
             print(f"✗ {final} 不存在 — 跑成功通知前必须先有 final.json")
             sys.exit(1)
@@ -169,7 +171,7 @@ def main() -> None:
         subject, body = build_success_body(args.date, data)
 
         # 成功：附 9 PNG + post.md + README + final.json
-        pub = ROOT / "daily" / args.date / "publish"
+        pub = ROOT / "daily" / args.date / LINE / "publish"
         attachments.append(pub / "post.md")
         attachments.append(pub / "README.md")
         for i in range(1, 10):

@@ -2,10 +2,10 @@
 Render daily HTML from enriched JSON via Jinja2.
 
 Usage:
-    python pipeline/render_html.py <enriched.json> <output.html>
+    python lines/digest/render_html.py <enriched.json> <output.html>
 
 Example:
-    python pipeline/render_html.py fixtures/sample_enriched.json /tmp/daily.html
+    python lines/digest/render_html.py fixtures/sample_enriched.json /tmp/daily.html
 """
 import json
 import sys
